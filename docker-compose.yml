@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fraud
+      POSTGRES_PASSWORD: fraud
+      POSTGRES_DB: fraud
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fraud"]
+      interval: 5s
+      retries: 10
+    volumes: [pgdata:/var/lib/postgresql/data]
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql+psycopg2://fraud:fraud@db:5432/fraud
+      ADMIN_API_KEY: dev-key
+    depends_on:
+      db: { condition: service_healthy }
+volumes:
+  pgdata:

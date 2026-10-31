@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentinel · Fraud intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{color-scheme:light;--navy:#0b1b2d;--navy2:#14324e;--ink:#0f1c2b;--muted:#5f7184;--line:#dbe3ec;--bg:#f1f5f9;--panel:#fff;--teal:#17b3a0;--amber:#f2a93b;--red:#e5484d;--blue:#2b6cb0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Figtree,system-ui,sans-serif}
+h1,h2,.num{font-family:"Bricolage Grotesque",Figtree,sans-serif}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.hero{background:var(--navy);color:#fff;padding:22px 28px 44px}
+.wrap{max-width:1120px;margin:0 auto}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:34px;height:34px;fill:var(--teal)}
+.brand h1{margin:0;font-size:26px;line-height:1}
+.brand span{display:block;color:#9db2c6;font-size:13px;margin-top:3px}
+.api{display:flex;align-items:center;gap:8px;font-size:13px;color:#9db2c6}
+.api input{width:230px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:8px;color:#fff;padding:6px 10px}
+.dot{width:9px;height:9px;border-radius:50%;background:#7b8ea1}.dot.up{background:var(--teal)}.dot.down{background:var(--red)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;margin-top:34px;align-items:center}
+.stage h2{margin:0 0 4px;font-size:22px}
+.lead{margin:0 0 18px;color:#9db2c6}
+.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+label{display:block;font-size:12.5px;color:#9db2c6;margin-bottom:3px}
+.fields input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:8px;color:#fff;padding:9px 11px}
+.amt{display:flex;gap:6px}.amt input{flex:1;min-width:0}.amt select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:8px;color:#fff;padding:9px 6px}.amt select option{color:#0f1c2b}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:9px 15px;cursor:pointer;font-weight:500}
+button:hover{background:#eef3f8}
+button:disabled{opacity:.55;cursor:wait}
+.go{background:var(--teal);border-color:var(--teal);color:#04201c;font-weight:600}.go:hover{background:#1fc7b3}
+.ghost{background:transparent;border-color:rgba(255,255,255,.22);color:#fff}.ghost:hover{background:rgba(255,255,255,.08)}
+.gauge{text-align:center}
+.gauge svg{width:100%;max-width:460px}
+#needle{transform-origin:110px 110px;transition:transform .7s cubic-bezier(.2,.9,.3,1.1)}
+#gval{font:700 30px "Bricolage Grotesque",sans-serif;fill:#fff;text-anchor:middle}
+.verdict{font:700 24px "Bricolage Grotesque",sans-serif;margin-top:2px}
+.gmeta{color:#9db2c6;font-size:13px;margin-top:2px}
+.body{max-width:1120px;margin:-22px auto 0;padding:0 28px 56px}
+.strip{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:grid;grid-template-columns:repeat(5,1fr)}
+.strip>div{padding:16px 20px;border-right:1px solid var(--line)}
+.strip>div:nth-child(5n){border-right:0}
+.strip>div:nth-child(n+6){border-top:1px solid var(--line)}
+.num{display:block;font-size:26px;font-weight:700;line-height:1.15}
+.k{font-size:13px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px}
+.panel h2{margin:0 0 2px;font-size:20px}
+.panel .sub{margin:0 0 16px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.actions .sp{flex:1}
+.actions input{width:150px;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.blue{background:var(--blue);border-color:var(--blue);color:#fff}.blue:hover{background:#245d9a}
+#msg{min-height:22px;margin-top:10px;color:var(--muted);font-size:14px}
+.banner{padding:11px 14px;border-radius:10px;margin:12px 0;font-weight:500}
+.banner.bad{background:#fdecec;color:#a1262b}.banner.good{background:#e4f6f2;color:#0d6b5d}.banner.neutral{background:#eef3f8}
+.drow{display:grid;grid-template-columns:190px 1fr 60px 84px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.kbar{height:8px;background:#e8eef4;border-radius:4px;overflow:hidden}
+.kbar i{display:block;height:100%;background:var(--teal);border-radius:4px}
+.kbar i.bad{background:var(--red)}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.tag{justify-self:end;padding:1px 10px;border-radius:10px;font-size:12px;font-weight:600}
+.tag.bad{background:#fdecec;color:#a1262b}.tag.good{background:#e4f6f2;color:#0d6b5d}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);font-size:13px}
+td.n,th.n{text-align:right}
+@media(max-width:900px){.stage{grid-template-columns:1fr;gap:28px}.strip{grid-template-columns:repeat(2,1fr)}.strip>div{border-right:0!important;border-top:1px solid var(--line)}.drow{grid-template-columns:1fr 70px 80px}.drow .kbar{display:none}.hero,.body{padding-left:16px;padding-right:16px}.api input{width:100%}}
+@media(prefers-reduced-motion:reduce){#needle{transition:none}}
+html{scroll-behavior:smooth}
+.nav{display:flex;gap:20px;font-size:14px}.nav a{color:#9db2c6;text-decoration:none}.nav a:hover{color:#fff}
+.panel{scroll-margin-top:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.grid4 h3{margin:0 0 4px;font:700 16px "Bricolage Grotesque",sans-serif}.grid4 p{margin:0;color:var(--muted);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.chips span{background:#eef3f8;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px}
+.note{color:var(--muted);font-size:13px;margin:14px 0 0}
+.steps{margin:0;padding-left:22px}.steps li{padding:5px 0}
+.about{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+.about p{margin:0 0 10px}
+.avatar{width:64px;height:64px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font:700 24px "Bricolage Grotesque",sans-serif}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+a.btn{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-weight:500;color:var(--ink);background:var(--panel)}
+a.btn:hover{background:#eef3f8}a.btn.main{background:var(--blue);border-color:var(--blue);color:#fff}a.btn.main:hover{background:#245d9a}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}.nav{order:3;width:100%;flex-wrap:wrap}}
+@media(max-width:560px){.grid4{grid-template-columns:1fr}.about{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="hero" id="demo"><div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z"/></svg>
+      <div><h1>Sentinel</h1><span>Fraud intelligence for card payments</span></div>
+    </div>
+    <nav class="nav" aria-label="Sections"><a href="#how-it-works">What it does</a><a href="#how-to-use">How to use</a><a href="#about">About me</a><a href="#contact">Contact</a></nav>
+    <div class="api"><span class="dot" id="dot"></span><span id="apiState">Connecting</span><input id="apiUrl" aria-label="Backend API URL" spellcheck="false"></div>
+  </div>
+
+  <div class="stage">
+    <div>
+      <h2>Score a transaction</h2>
+      <p class="lead">Enter the details of a card payment and see how likely it is to be fraud.</p>
+      <div class="fields" id="fields"></div>
+      <div class="row">
+        <button class="go" id="scoreBtn">Score transaction</button>
+        <button class="ghost" id="presetLegit">Fill typical purchase</button>
+        <button class="ghost" id="presetRisky">Fill suspicious purchase</button>
+      </div>
+    </div>
+    <div class="gauge" aria-live="polite">
+      <svg viewBox="0 0 220 135" role="img" aria-label="Fraud probability gauge">
+        <defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="200" y2="0"><stop offset="0" stop-color="#17b3a0"/><stop offset=".55" stop-color="#f2a93b"/><stop offset="1" stop-color="#e5484d"/></linearGradient></defs>
+        <path d="M20 110A90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="16" stroke-linecap="round"/>
+        <path d="M20 110A90 90 0 0 1 200 110" fill="none" stroke="url(#g)" stroke-width="16" stroke-linecap="round"/>
+        <line id="tick" x1="0" y1="0" x2="0" y2="0" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <g id="needle"><line x1="110" y1="110" x2="44" y2="110" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/><circle cx="110" cy="110" r="6" fill="#fff"/></g>
+        <text id="gval" x="110" y="132">–</text>
+      </svg>
+      <div class="verdict" id="verdict">Waiting for a transaction</div>
+      <div class="gmeta" id="scoreMeta">The white marker on the arc is the model's decision threshold.</div>
+    </div>
+  </div>
+</div></header>
+
+<main class="body">
+  <div class="strip" id="strip"></div>
+
+  <section class="panel">
+    <h2>Drift monitoring</h2>
+    <p class="sub">Compare recent live traffic with the data the model was trained on. If it shifts too far, retrain.</p>
+    <div class="actions">
+      <button id="simNormal">Send 100 normal transactions</button>
+      <button id="simDrift">Send 100 shifted transactions</button>
+      <button class="blue" id="driftBtn">Check drift</button>
+      <span class="sp"></span>
+      <input id="adminKey" type="password" aria-label="Admin API key" placeholder="Admin API key">
+      <button id="retrainBtn">Retrain model</button>
+    </div>
+    <div id="msg" role="status"></div>
+    <div id="driftOut"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Recent predictions</h2>
+    <p class="sub">The last 10 transactions scored by the API.</p>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th class="n">ID</th><th class="n">Amount (USD)</th><th class="n">Hour</th><th class="n">Distance km</th><th class="n">Fraud probability</th><th>Decision</th><th class="n">Model</th></tr></thead>
+      <tbody id="recent"></tbody>
+    </table></div>
+  </section>
+
+  <section class="panel" id="how-it-works">
+    <h2>What Sentinel does</h2>
+    <p class="sub">Sentinel is an end-to-end machine learning system for spotting fraudulent card payments. It covers the whole lifecycle of a model, not just the model itself.</p>
+    <div class="grid4">
+      <div><h3>Train and track</h3><p>An XGBoost model is trained and every run is logged in MLflow with its metrics. The best version is registered as the production model.</p></div>
+      <div><h3>Serve</h3><p>A FastAPI service scores each transaction in milliseconds and saves every prediction to a database.</p></div>
+      <div><h3>Monitor</h3><p>Statistical tests compare live traffic with the training data to catch drift before accuracy drops.</p></div>
+      <div><h3>Retrain</h3><p>When drift crosses the threshold, a new model is trained, registered, and loaded into the running API.</p></div>
+    </div>
+    <div class="chips"><span>Python</span><span>XGBoost</span><span>scikit-learn</span><span>MLflow</span><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span><span>Docker</span><span>GitHub Actions</span><span>Vercel</span></div>
+    <p class="note">The demo uses synthetic transactions. No real card data is stored or processed.</p>
+  </section>
+
+  <section class="panel" id="how-to-use">
+    <h2>How to use this demo</h2>
+    <p class="sub">Try the full monitoring loop in about two minutes.</p>
+    <ol class="steps">
+      <li>Pick a currency, then click <b>Fill suspicious purchase</b> and <b>Score transaction</b>. The needle moves toward red when the payment looks like fraud.</li>
+      <li>Click <b>Fill typical purchase</b> and score it again to compare. Edit any field to see how the score changes.</li>
+      <li>Click <b>Send 100 normal transactions</b>, then <b>Check drift</b>. The result should say there is no significant drift.</li>
+      <li>Click <b>Send 100 shifted transactions</b> (larger amounts, farther from home, more activity), then <b>Check drift</b>. The shifted features turn red.</li>
+      <li>Click <b>Retrain model</b> and enter the admin key. A new version replaces the old one. Retraining is protected, so on the public demo this step is for the owner.</li>
+    </ol>
+    <p class="note">Amounts in other currencies are converted to US dollars with approximate fixed rates before scoring, because the model was trained on dollar amounts.</p>
+  </section>
+
+  <section class="panel" id="about">
+    <h2>About the builder</h2>
+    <div class="about">
+      <div class="avatar" aria-hidden="true">BY</div>
+      <div>
+        <p><b>Balwant Yadav</b>, Python and AI/ML developer based in New Delhi, India. I'm currently working as a Aiml Devloper.</p>
+        <p>I hold a B.Tech in Artificial Intelligence and Machine Learning from Guru Gobind Singh Indraprastha University (2025, CGPA 8.5/10). I've worked as a backend developer intern (Python, FastAPI) at Anantixia Technologies and as a software developer intern (Java, PostgreSQL) at BISAG-N under MeitY, Government of India.</p>
+        <p>I build backend systems and machine learning applications, and I made Sentinel to show how a model is shipped, monitored, and kept healthy in production. Outside of work I'm interested in physics and mathematics.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="contact">
+    <h2>Contact</h2>
+    <p class="sub">Questions, feedback, or a project in mind? I'd like to hear from you.</p>
+    <div class="links">
+      <a class="btn main" href="mailto:12119011621.aiml@gmail.com">12119011621.aiml@gmail.com</a>
+      <a class="btn" href="https://www.linkedin.com/in/balwant-yadav" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="https://github.com/Balwant001" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </section>
+</main>
+<footer>© 2026 Balwant Yadav · Sentinel is a portfolio project built on synthetic data.</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const FIELDS = [["amount","Amount ($)",0.01],["hour","Hour of day (0-23)",1],["distance_from_home_km","Distance from home (km)",0.1],["merchant_risk","Merchant risk (0-1)",0.01],["txn_count_24h","Transactions in last 24h",1],["is_foreign","Foreign (0 or 1)",1],["card_age_days","Card age (days)",1]];
+const PRESETS = {legit:{amount:24.5,hour:14,distance_from_home_km:3.2,merchant_risk:0.08,txn_count_24h:2,is_foreign:0,card_age_days:1450},
+  risky:{amount:1850,hour:3,distance_from_home_km:640,merchant_risk:0.85,txn_count_24h:11,is_foreign:1,card_age_days:35}};
+$("#fields").innerHTML = FIELDS.map(([k,l,s]) => `<div><label for="f_${k}">${l}</label><input id="f_${k}" type="number" step="${s}" min="0"></div>`).join("");
+// The model is trained on USD amounts, so the entered amount is converted to USD before scoring.
+// Rates are approximate (units per 1 USD): edit them whenever you like.
+const RATES = {USD:1, INR:88, EUR:0.92, GBP:0.78, AED:3.67, AUD:1.52, CAD:1.38, SGD:1.3};
+const SYM = {USD:"$", INR:"₹", EUR:"€", GBP:"£", AED:"AED ", AUD:"A$", CAD:"C$", SGD:"S$"};
+let cur = "USD";
+$("#f_amount").parentElement.innerHTML = `<label for="f_amount">Amount</label><div class="amt"><input id="f_amount" type="number" step="0.01" min="0"><select id="cur" aria-label="Currency">${Object.keys(RATES).map(c => `<option>${c}</option>`).join("")}</select></div>`;
+$("#cur").onchange = e => { const usd = Number($("#f_amount").value)/RATES[cur]; cur = e.target.value; $("#f_amount").value = +(usd*RATES[cur]).toFixed(2); };
+const fill = p => FIELDS.forEach(([k]) => $("#f_"+k).value = k === "amount" ? +(p[k]*RATES[cur]).toFixed(2) : p[k]);
+fill(PRESETS.legit);
+
+$("#apiUrl").value = localStorage.getItem("apiBase") || window.API_URL || "http://localhost:8000";
+const base = () => $("#apiUrl").value.trim().replace(/\/$/,"");
+$("#apiUrl").addEventListener("change", () => { localStorage.setItem("apiBase", base()); refresh(); });
+
+async function api(path, {method="GET", body, headers={}} = {}) {
+  const res = await fetch(base()+path, {method, headers:{"Content-Type":"application/json",...headers}, body: body ? JSON.stringify(body) : undefined});
+  if (!res.ok) { let d = ""; try { d = (await res.json()).detail; } catch {} throw new Error(`${res.status} ${typeof d === "string" ? d : JSON.stringify(d)}`); }
+  return res.json();
+}
+const say = t => $("#msg").textContent = t;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct = x => (x*100).toFixed(1)+"%";
+
+function placeTick(t) {
+  const a = Math.PI*t, c = Math.cos(a), s = Math.sin(a), tk = $("#tick");
+  tk.setAttribute("x1", 110-78*c); tk.setAttribute("y1", 110-78*s);
+  tk.setAttribute("x2", 110-104*c); tk.setAttribute("y2", 110-104*s);
+}
+const stat = (v,l) => `<div><span class="num">${esc(v)}</span><span class="k">${esc(l)}</span></div>`;
+
+async function refresh() {
+  try { await api("/health"); $("#dot").className="dot up"; $("#apiState").textContent="API online"; }
+  catch { $("#dot").className="dot down"; $("#apiState").textContent="API unreachable"; return; }
+  const [m, s] = await Promise.all([api("/model"), api("/stats")]), mt = m.metrics || {};
+  placeTick(m.threshold);
+  $("#strip").innerHTML = [["v"+m.version,"Model in production"],[pct(mt.precision||0),"Precision"],[pct(mt.recall||0),"Recall"],[(mt.pr_auc||0).toFixed(3),"PR-AUC"],[(mt.roc_auc||0).toFixed(3),"ROC-AUC"],
+    [s.total_predictions,"Predictions served"],[pct(s.flag_rate),"Flagged as fraud"],[s.avg_latency_ms+" ms","Average latency"],[s.p95_latency_ms+" ms","p95 latency"],[m.threshold.toFixed(3),"Decision threshold"]].map(x => stat(...x)).join("");
+  $("#recent").innerHTML = s.recent.length ? s.recent.map(r => `<tr><td class="n">${r.id}</td><td class="n">${r.amount.toFixed(2)}</td><td class="n">${r.hour}</td><td class="n">${r.distance_from_home_km}</td><td class="n">${pct(r.fraud_probability)}</td><td><span class="tag ${r.is_fraud?"bad":"good"}">${r.is_fraud?"Flagged":"Approved"}</span></td><td class="n">v${esc(r.model_version)}</td></tr>`).join("") : `<tr><td colspan="7" style="color:var(--muted)">No predictions yet. Score a transaction above or send sample traffic.</td></tr>`;
+}
+
+async function score() {
+  const body = {}; FIELDS.forEach(([k]) => body[k] = Number($("#f_"+k).value));
+  const shown = body.amount; body.amount = +(shown/RATES[cur]).toFixed(2);
+  const btn = $("#scoreBtn"); btn.disabled = true;
+  try {
+    const r = await api("/predict", {method:"POST", body});
+    $("#needle").style.transform = `rotate(${r.fraud_probability*180}deg)`;
+    $("#gval").textContent = pct(r.fraud_probability);
+    $("#verdict").textContent = r.is_fraud ? "Flag for review" : "Approve";
+    $("#verdict").style.color = r.is_fraud ? "#ff7b7f" : "#3fd6c3";
+    $("#scoreMeta").textContent = `Model v${r.model_version} · threshold ${r.threshold} · ${r.latency_ms} ms` + (cur !== "USD" ? ` · ${SYM[cur]}${shown} scored as $${body.amount}` : "");
+    placeTick(r.threshold); say(""); refresh();
+  } catch (e) { say("Could not score: "+e.message); } finally { btn.disabled = false; }
+}
+
+// traffic generators mirror src/data.py so normal traffic matches the training distribution
+const U = () => 1 - Math.random(), gauss = () => Math.sqrt(-2*Math.log(U()))*Math.cos(2*Math.PI*Math.random());
+const gamma = k => { let s = 0; for (let i=0;i<k;i++) s += -Math.log(U()); return s; };
+const poisson = l => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= Math.random(); } while (p > L); return k-1; };
+function sample(drift) {
+  let amount = Math.exp(3.6 + gauss()), dist = -Math.log(U())*15;
+  if (drift) { amount *= 2.5; dist *= 2; }
+  const a = gamma(2), b = gamma(8);
+  return {amount:+amount.toFixed(2), hour:Math.floor(Math.random()*24), distance_from_home_km:+dist.toFixed(1), merchant_risk:+(a/(a+b)).toFixed(3),
+    txn_count_24h:poisson(drift?6:3), is_foreign:Math.random()<0.08?1:0, card_age_days:10+Math.floor(Math.random()*2990)};
+}
+async function simulate(drift) {
+  const btns = document.querySelectorAll("button"); btns.forEach(b => b.disabled = true);
+  try {
+    for (let i = 1; i <= 100; i++) { await api("/predict", {method:"POST", body:sample(drift)}); if (i % 10 === 0) say(`Sent ${i}/100 ${drift?"shifted":"normal"} transactions`); }
+    say("Done. Click Check drift to compare this traffic with the training data."); await refresh();
+  } catch (e) { say("Simulation failed: "+e.message); } finally { btns.forEach(b => b.disabled = false); }
+}
+
+async function drift() {
+  try {
+    const d = await api("/drift"), out = $("#driftOut");
+    if (d.status !== "ok") { out.innerHTML = `<div class="banner neutral">Not enough traffic yet: ${d.rows} of ${d.min_rows} predictions needed.</div>`; return; }
+    out.innerHTML = `<div class="banner ${d.dataset_drift?"bad":"good"}">${d.dataset_drift ? "Drift detected" : "No significant drift"}: ${(d.drifted_share*100).toFixed(0)}% of features drifted (retrain trigger at ${(d.threshold*100).toFixed(0)}%), based on the last ${d.rows} predictions.</div>` +
+      Object.entries(d.features).map(([k,f]) => `<div class="drow"><span>${esc(k)}</span><div class="kbar"><i class="${f.drifted?"bad":""}" style="width:${Math.min(100,f.ks_stat*150)}%"></i></div><span class="n">${f.ks_stat}</span><span class="tag ${f.drifted?"bad":"good"}">${f.drifted?"Drifted":"Stable"}</span></div>`).join("");
+    say("");
+  } catch (e) { say("Drift check failed: "+e.message); }
+}
+
+async function retrain() {
+  const before = (await api("/model")).version; $("#retrainBtn").disabled = true;
+  try {
+    await api("/retrain", {method:"POST", headers:{"X-API-Key":$("#adminKey").value}});
+    say("Retraining started. This takes about 15 seconds.");
+    for (let i = 0; i < 40; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const m = await api("/model");
+      if (m.version !== before) { say(`Retrained. Version ${m.version} is now serving traffic.`); await refresh(); return; }
+    }
+    say("Retraining is taking longer than expected. Check the backend logs.");
+  } catch (e) { say("Retrain failed: "+e.message); } finally { $("#retrainBtn").disabled = false; }
+}
+
+// Prefill the demo key on localhost only; on a public site the key must be typed in.
+if (location.hostname === "localhost") $("#adminKey").value = "dev-key";
+$("#scoreBtn").onclick = score;
+$("#presetLegit").onclick = () => fill(PRESETS.legit);
+$("#presetRisky").onclick = () => fill(PRESETS.risky);
+$("#simNormal").onclick = () => simulate(false);
+$("#simDrift").onclick = () => simulate(true);
+$("#driftBtn").onclick = drift;
+$("#retrainBtn").onclick = retrain;
+refresh();
+</script>
+</body>
+</html>

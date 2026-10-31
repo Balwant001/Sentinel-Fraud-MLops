@@ -1,0 +1,10 @@
+.venv
+.git
+__pycache__
+mlruns
+mlflow.db
+*.db
+data
+reports
+frontend
+tests
